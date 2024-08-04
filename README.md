@@ -8,10 +8,7 @@ Video Link: [https://youtu.be/Z0E9AKt6RFo](https://youtu.be/Z0E9AKt6RFo)
 ### Installation ###
 1. Create a new python virtual env with python 3.8 using Anaconda
 2. Clone this repo
-```bash
-git clone https://github.com/hojae-io/ModelBasedFootstepPlanning-IROS2024.git humanoidGym
-```
-4. Install humanoidGym Requirements:
+3. Install humanoidGym Requirements:
 ```bash
 pip install -r requirements.txt
 ```
