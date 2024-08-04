@@ -1,0 +1,20 @@
+{
+    "method": "random",
+    "metric": {
+        "name": "Train/mean_reward",
+        "goal": "maximize"
+    },
+    "run_cap": 10,
+    "parameters": {
+        "train_cfg.runner.max_iterations":{
+            "values": [100]
+        },
+        "train_cfg.policy.reward.weights.tracking_lin_vel":{
+            "min":1.0,
+            "max":100.0
+        },
+        "env_cfg.seed": {
+            "values": [150]
+        }
+    }
+}

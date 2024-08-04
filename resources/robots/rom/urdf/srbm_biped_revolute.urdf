@@ -1,0 +1,248 @@
+<?xml version="1.0" ?>
+
+<robot name="slip">
+
+    <!-- Base -->
+    <link name="base">
+        <inertial>
+            <mass value="15.32"/>
+            <origin xyz="0.0068747 0.000485224 0.138778"/>
+            <inertia
+                ixx="0.648766486411592"
+                ixy="0.000103746681139"
+                ixz="-0.020932785311029"
+                iyy="0.000103746681139"
+                iyz="0.283925838199280"
+                izz="0.413025002365277" />
+        </inertial>
+        <visual>
+            <geometry>
+                <!-- <sphere radius="0.125"/> -->
+                <box size="0.15 0.3 0.35"/>
+            </geometry>
+            <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <!-- <sphere radius="0.125"/> -->
+                <box size="0.15 0.3 0.35"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <!-- Right Leg -->
+    <link name="right_hip_roll">  
+        <inertial>
+            <mass value="1.199631"/>
+            <origin xyz="0.067579  -0.013035 0.000132"/>
+            <inertia
+                ixx="0.001745"
+                ixy="0.000003"
+                ixz="-0.000082"
+                iyy="0.003338"
+                iyz="-0.000010"
+                izz="0.001951" />
+        </inertial>
+    </link>
+    <joint name="right_roll" type="revolute">
+        <parent link="base"/>
+        <child link="right_hip_roll"/>
+        <origin xyz="0 -0.1 -0.15"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="144" velocity="10.0" lower="-0.785" upper="0.785"/>
+    </joint>
+    <link name="right_hip_pitch">
+        <inertial>
+            <mass value="2.634789"/>
+            <origin xyz="-0.001100 0.026032 -0.078842"/>
+            <inertia
+                ixx="0.024489"
+                ixy="0.000068"
+                ixz="0.000512"
+                iyy="0.026049"
+                iyz="0.002657"
+                izz="0.003812" />
+        </inertial>
+        <visual>
+            <origin rpy="0 1.571 0" xyz="0.125 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.25"/>
+            </geometry>
+            <material name="right_hip_roll_mat">
+                <color rgba="0 0 0.7 1"/>
+            </material>
+        </visual>
+    </link>
+    <joint name="right_pitch" type="revolute">
+        <parent link="right_hip_roll"/>
+        <child link="right_hip_pitch"/>
+        <origin rpy="0 1.571 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="144" velocity="10.0" lower="-0.785" upper="0.785"/>
+    </joint>
+    <link name="right_hip_shank">
+        <inertial>
+            <mass value="0.346291"/>
+            <origin xyz="0.005232 0.000457 -0.131581"/>
+            <inertia
+                ixx="0.002952"
+                ixy="0.000000"
+                ixz="0.000083"
+                iyy="0.002943"
+                iyz="0.000033"
+                izz="0.000238" />
+        </inertial>
+        <visual>
+            <origin rpy="0 1.571 0" xyz="0.14 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.28"/>
+            </geometry>
+            <material name="right_hip_shank_mat">
+                <color rgba="0 0 0.7 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 1.571 0" xyz="0.14 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.28"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="right_knee" type="revolute">
+        <parent link="right_hip_pitch"/>
+        <child link="right_hip_shank"/>
+        <origin xyz="0.25 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000" velocity="20.0" lower="0." upper="1.57"/>
+    </joint>
+    <link name="right_foot">
+        <inertial>
+            <mass value="0.279583"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <sphere radius="0.06"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <sphere radius="0.06"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="right_foot_joint" type="fixed">
+        <parent link="right_hip_shank"/>
+        <child link="right_foot"/>
+        <origin xyz="0.28 0 0"/>
+    </joint>
+
+
+
+    <!-- Left Leg -->
+    <link name="left_hip_roll">  
+        <inertial>
+            <mass value="1.199631"/>
+            <origin xyz="0.067579  -0.013035 0.000132"/>
+            <inertia
+                ixx="0.001745"
+                ixy="0.000003"
+                ixz="-0.000082"
+                iyy="0.003338"
+                iyz="-0.000010"
+                izz="0.001951" />
+        </inertial>
+    </link>
+    <joint name="left_roll" type="revolute">
+        <parent link="base"/>
+        <child link="left_hip_roll"/>
+        <origin xyz="0 0.1 -0.15"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="144" velocity="10.0" lower="-0.785" upper="0.785"/>
+    </joint>
+    <link name="left_hip_pitch">
+        <inertial>
+            <mass value="2.634789"/>
+            <origin xyz="-0.001100 0.026032 -0.078842"/>
+            <inertia
+                ixx="0.024489"
+                ixy="0.000068"
+                ixz="0.000512"
+                iyy="0.026049"
+                iyz="0.002657"
+                izz="0.003812" />
+        </inertial>
+        <visual>
+            <origin rpy="0 1.571 0" xyz="0.125 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.25"/>
+            </geometry>
+            <material name="left_hip_roll_mat">
+                <color rgba="0.7 0 0 1"/>
+            </material>
+        </visual>
+    </link>
+    <joint name="left_pitch" type="revolute">
+        <parent link="left_hip_roll"/>
+        <child link="left_hip_pitch"/>
+        <origin rpy="0 1.571 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="144" velocity="10.0" lower="-0.785" upper="0.785"/>
+    </joint>
+    <link name="left_hip_shank">
+        <inertial>
+            <mass value="0.346291"/>
+            <origin xyz="0.005232 0.000457 -0.131581"/>
+            <inertia
+                ixx="0.002952"
+                ixy="0.000000"
+                ixz="0.000083"
+                iyy="0.002943"
+                iyz="0.000033"
+                izz="0.000238" />
+        </inertial>
+        <visual>
+            <origin rpy="0 1.571 0" xyz="0.14 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.28"/>
+            </geometry>
+            <material name="left_hip_shank_mat">
+                <color rgba="0.7 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 1.571 0" xyz="0.14 0 0"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.28"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="left_knee" type="revolute">
+        <parent link="left_hip_pitch"/>
+        <child link="left_hip_shank"/>
+        <origin xyz="0.25 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000" velocity="20.0" lower="0." upper="1.57"/>
+    </joint>
+    <link name="left_foot">
+        <inertial>
+            <mass value="0.279583"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <sphere radius="0.06"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <sphere radius="0.06"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="left_foot_joint" type="fixed">
+        <parent link="left_hip_shank"/>
+        <child link="left_foot"/>
+        <origin xyz="0.28 0 0"/>
+    </joint>
+
+</robot>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<robot name="pendulum">
+
+    <link name="base">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="base_mat">
+        <color rgba="0.9 0.6 0.2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.03 8 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <link name="pole">
+    <visual>
+      <geometry>
+        <box size="0.06 0.04 0.75"/>
+      </geometry>
+      <origin xyz="0 0 0.47"/>
+      <material name="pole_mat">
+        <color rgba="0.1 0.1 0.3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.04 0.06 1.0"/>
+      </geometry>
+      <origin xyz="0 0 0.47"/>
+    </collision>
+    <inertial>
+      <mass value="2"/>
+      <origin xyz="0 0 0.2"/>
+      <inertia ixx="0.0267" ixy="0" ixz="0"
+               iyy="0.0267" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+
+  <joint name="actuator" type="revolute">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0 0 0"/>
+    <parent link="base"/>
+    <child link="pole"/>
+    <limit effort="0.5"/>
+    <limit velocity="20.0"/>
+     <!-- lower="-50" upper="50"/> -->
+
+  </joint>
+
+</robot>

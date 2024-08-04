@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<robot name="slip">
+ <!-- Base -->
+    <link name="base">
+        <inertial>
+            <mass value="24"/>
+            <origin xyz="0.0 0.0 0.0"/>
+            <inertia
+                ixx="0.168459"
+                ixy="0.000124"
+                ixz="0.006493"
+                iyy="0.101358"
+                iyz="0.000278"
+                izz="0.091754" />
+        </inertial>
+        <visual>
+            <geometry>
+                <!-- <box size="0.15 0.3 0.35"/> -->
+                <sphere radius="0.2"/>
+            </geometry>
+            <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <!-- <box size="0.15 0.3 0.35"/> -->
+                <sphere radius="0.2"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <link name="right_hip_roll">  
+        <!-- <inertial>
+            <mass value="1.0"/>
+        </inertial> -->
+    </link>
+    <joint name="right_roll" type="revolute">
+        <parent link="base"/>
+        <child link="right_hip_roll"/>
+        <origin xyz="0 0 0"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="144" velocity="10.0" lower="-0.785" upper="0.785"/>
+    </joint>
+
+    <link name="right_hip_pitch">
+    </link>
+    <joint name="right_pitch" type="revolute">
+        <parent link="right_hip_roll"/>
+        <child link="right_hip_pitch"/>
+        <origin rpy="0 1.571 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="144" velocity="10.0" lower="-0.785" upper="0.785"/>
+    </joint>
+
+    <link name="right_foot">
+        <visual>
+            <geometry>
+                <sphere radius="0.05"/>
+            </geometry>
+            <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+    </link>
+    <joint name="right_leg" type="prismatic">
+        <parent link="right_hip_pitch"/>
+        <child link="right_foot"/>
+        <origin xyz="0 0 0"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="1000" velocity="20.0" lower="0.3" upper="0.675"/>
+    </joint>
+
+</robot>

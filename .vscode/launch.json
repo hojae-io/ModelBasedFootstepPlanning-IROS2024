@@ -5,11 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
-            "type": "debugpy",
+            "name": "Python: Current File",
+            "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            // "args" : ["--task", "humanoid_vanilla", "--num_envs=1", "--disable_wandb", "--disable_local_saving", "--sim_device=cpu", "--rl_device=cpu"]
+            // "args" : ["--task", "humanoid_vanilla", "--num_envs=4096", "--disable_wandb", "--disable_local_saving", "--headless"]
+            "args" : ["--task", "humanoid_controller", "--num_envs=1", "--sim_device=cpu", "--rl_device=cpu"]
+            // "args" : ["--task", "humanoid_controller", "--num_envs=1", "--disable_wandb", "--disable_local_saving", "--sim_device=cpu", "--rl_device=cpu"]
+            // "args" : ["--task", "humanoid_controller", "--num_envs=4096", "--disable_wandb", "--disable_local_saving", "--headless"]
         }
     ]
 }
