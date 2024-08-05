@@ -81,3 +81,8 @@ venv.bak/
 user/
 analysis/
 models/
+*.mp4
+*.pdf
+*.png
+*.gif
+*.jpg

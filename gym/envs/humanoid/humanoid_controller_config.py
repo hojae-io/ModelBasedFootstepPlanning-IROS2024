@@ -206,30 +206,6 @@ class HumanoidControllerCfg(LeggedRobotCfg):
             '09_left_knee': 1.,
             '10_left_ankle': 1.
         }
-        # stiffness = {
-        #     '01_right_hip_yaw': 30.,
-        #     '02_right_hip_abad': 30.,
-        #     '03_right_hip_pitch': 30.,
-        #     '04_right_knee': 2.,
-        #     '05_right_ankle': 3.,
-        #     '06_left_hip_yaw': 30.,
-        #     '07_left_hip_abad': 30.,
-        #     '08_left_hip_pitch': 30.,
-        #     '09_left_knee': 2.,
-        #     '10_left_ankle': 3.,
-        # }
-        # damping = {
-        #     '01_right_hip_yaw': 1.,
-        #     '02_right_hip_abad': 1.,
-        #     '03_right_hip_pitch': 1.,
-        #     '04_right_knee': .1,
-        #     '05_right_ankle': .1,
-        #     '06_left_hip_yaw': 1.,
-        #     '07_left_hip_abad': 1.,
-        #     '08_left_hip_pitch': 1.,
-        #     '09_left_knee': .1,
-        #     '10_left_ankle': .1
-        # }
 
         actuation_scale = 1.0
         exp_avg_decay = None
@@ -346,18 +322,11 @@ class HumanoidControllerCfg(LeggedRobotCfg):
 
             # * Floating base rewards * #
             base_height = 1.
-            # CoM_xy_location = 2.
-            # base_xy_orientation = 2. # 5.
             base_heading = 3.
             base_z_orientation = 1.
             tracking_lin_vel_world = 4.
 
             # * Stepping rewards * #
-            # foot_ref_trajectory = 20.0
-            # step_heading = 2.0
-            # step_z_orientation = 1.0
-            # stabilize_ankle = 1e-3
-            # wrong_contact = 30.
             joint_regularization = 1.
             contact_schedule = 3.
 
@@ -405,7 +374,6 @@ class HumanoidControllerRunnerCfg(LeggedRobotRunnerCfg):
                      "phase_cos",
                      "dof_pos",
                      "dof_vel",]
-                    #  "foot_contact"]
 
         critic_obs = actor_obs
 

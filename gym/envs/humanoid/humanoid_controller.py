@@ -205,7 +205,6 @@ class HumanoidController(LeggedRobot):
 
         # * Phase-based foot contact
         self.contact_schedule = self.smooth_sqr_wave(self.phase)
-        
 
         # * Update current step
         current_step_masked = self.current_step[self.foot_contact]
@@ -250,14 +249,6 @@ class HumanoidController(LeggedRobot):
             <step angle>
             theta = previous_step_angle + 2 * w_cmd * step_period
         """
-        # k = 0.1
-        # p_symmetry = 0.5 * self.step_stance * self.dt * self.base_lin_vel[:,:2] + k * (self.base_lin_vel[:,:2] - self.commands[:,:2])
-        # x_centrifugal = (self.base_lin_vel[:,1] * self.commands[:,2]).unsqueeze(1)
-        # y_centrifugal = (-self.base_lin_vel[:,0] * self.commands[:,2]).unsqueeze(1)
-        # p_centrifugal = 0.5 * torch.sqrt(self.base_height / -self.sim_params.gravity.z) * torch.hstack((x_centrifugal, y_centrifugal))
-
-        # self.raibert_heuristic[:,0,:2] = self.right_hip_pos[:,:2] + p_symmetry + p_centrifugal
-        # self.raibert_heuristic[:,1,:2] = self.left_hip_pos[:,:2] + p_symmetry + p_centrifugal
         g = -self.sim_params.gravity.z
         k = torch.sqrt(self.CoM[:,2:3] / g)
         p_symmetry = 0.5 * self.step_stance * self.dt * self.base_lin_vel_world[:,:2] + k * (self.base_lin_vel_world[:,:2] - self.commands[:,:2])
@@ -305,8 +296,6 @@ class HumanoidController(LeggedRobot):
         self.step_stance[self.update_commands_ids] = torch.clone(self.step_period[self.update_commands_ids])
         
         # * Update foot_on_motion (At least one foot should be on motion, otherwise the robot cannot update step command)
-        # self.foot_on_motion[self.update_commands_ids, 0] = torch.from_numpy(np.random.choice([True, False], self.update_commands_ids.sum().item())).to(self.device)
-        # self.foot_on_motion[self.update_commands_ids, 1] = ~self.foot_on_motion[self.update_commands_ids, 0]
         self.foot_on_motion[self.update_commands_ids] = ~self.foot_on_motion[self.update_commands_ids]
 
         # * Update step_commands
@@ -317,7 +306,6 @@ class HumanoidController(LeggedRobot):
         # update_step_commands_mask[self.foot_on_motion[self.update_commands_ids]] = self._generate_dynamic_step_command_by_raibert_heuristic(self.update_commands_ids) # * Raibert heuristic with dynamically changing step command
         update_step_commands_mask[self.foot_on_motion[self.update_commands_ids]] = self._generate_step_command_by_3DLIPM_XCoM(self.update_commands_ids) # * XCoM paper
         # update_step_commands_mask[self.foot_on_motion[self.update_commands_ids]] = self._generate_dynamic_step_command_by_3DLIPM_XCoM(self.update_commands_ids) # * XCoM paper with dynamically changing step command
-        # update_step_commands_mask[self.foot_on_motion[self.update_commands_ids]] += torch.tensor([0.6, 0., 0.], device=self.device)
         self._update_LIPM_CoM(self.update_commands_ids)
 
         foot_collision_ids = (update_step_commands_mask[:,0,:2] - update_step_commands_mask[:,1,:2]).norm(dim=1) < 0.2
@@ -330,7 +318,6 @@ class HumanoidController(LeggedRobot):
                                                                                                                                   update_step_commands_mask)
             
         self.step_commands[self.update_commands_ids] = update_step_commands_mask
-        # print(self.commands)
 
     def _adjust_step_command_in_gap_terrain(self, update_commands_ids, update_step_commands_mask):
         """ Adjust step_command based on measured heights
@@ -789,19 +776,12 @@ class HumanoidController(LeggedRobot):
 
 # * ########################## REWARDS ######################## * #
 
-    # * Behavioral Rewards * #
+    # * Floating base Rewards * #
 
     def _reward_base_height(self):
         """ Reward tracking specified base height """
         error = (self.cfg.rewards.base_height_target - self.base_height).flatten()
         return self._negsqrd_exp(error)
-
-    def _reward_base_xy_orientation(self):
-        """ Reward tracking command heading which is an average of two step_command heading """
-        step_commands_ang_base = wrap_to_pi(self.step_commands[:,:,2] - self.base_heading)
-        base_xy_orientation_error = torch.abs(torch.mean(step_commands_ang_base, dim=1))
-
-        return self._neg_exp(base_xy_orientation_error, a=torch.pi/4)
     
     def _reward_base_heading(self):
         # Reward tracking desired base heading
@@ -810,65 +790,18 @@ class HumanoidController(LeggedRobot):
 
         return self._neg_exp(base_heading_error, a=torch.pi/2)    
 
-    def _reward_CoM_xy_location(self):
-        """ Reward tracking command location which is an average of two step_command location """
-        command_CoM_location = (self.step_commands[:,0,:2] + self.step_commands[:,1,:2]) / 2
-        CoM_xy_location_error = torch.norm(self.CoM[:, :2] - command_CoM_location, dim=1)
-
-        return self._negsqrd_exp(CoM_xy_location_error, a=0.1)
-
     def _reward_base_z_orientation(self):
         """ Reward tracking upright orientation """
         error = torch.norm(self.projected_gravity[:, :2], dim=1)
         return self._negsqrd_exp(error, a=0.2)
+    
+    def _reward_tracking_lin_vel_world(self):
+        # Reward tracking linear velocity command in world frame
+        error = self.commands[:, :2] - self.root_states[:, 7:9]
+        error *= 1./(1. + torch.abs(self.commands[:, :2]))
+        return self._negsqrd_exp(error, a=1.).sum(dim=1)
 
     # * Stepping Rewards * #
-    def _reward_foot_ref_trajectory(self):
-        """ Encourage to follow the foot reference trajectory """
-        self._calculate_foot_ref_trajectory(self.prev_step_commands, self.step_commands)
-        foot_location_offset = torch.norm(self.foot_states[:,:,:3] - self.ref_foot_trajectories, dim=2)
-        
-        return self._neg_exp(foot_location_offset).sum(dim=1)
-
-    def _reward_step_location(self):
-        """ Encourage to step on location given in step_commands. 
-        """
-        return self._neg_exp(self.step_location_offset).sum(dim=1)
-        return (self._neg_exp(self.step_location_offset) * self.foot_on_motion).sum(dim=1)
-
-    def _reward_step_heading(self):
-        """ Encourage to step on orientation given in step_commands
-            Only activated when step is near the commanded location. Prioritize step_location reward.
-        """
-        # return (self._negsqrd_exp(self.step_heading_offset, a=np.deg2rad(90)) * self._neg_exp(self.step_location_offset)).sum(dim=1)
-        return self._negsqrd_exp(self.step_heading_offset, a=torch.pi/2).sum(dim=1)
-        return (self._negsqrd_exp(self.step_heading_offset, a=np.deg2rad(90)) * \
-                self.foot_on_motion).sum(dim=1)
-        return (self._negsqrd_exp(self.step_heading_offset) * \
-                (self.step_location_offset < self.succeed_step_radius)).sum(dim=1)
-        return (self._negsqrd_exp(self.step_heading_offset) * \
-                (self.step_location_offset < self.succeed_step_radius) * \
-                self.foot_on_motion).sum(dim=1)
-    
-    def _reward_step_z_orientation(self):
-        """ Encourage to flat step on step_commands
-            Only activated when step is near the commanded location. Prioritize step_location reward.
-        """
-        # return (self._negsqrd_exp(torch.norm(self.foot_projected_gravity[:,:,:2], dim=2)) * \
-        #        self.semi_succeed_step).sum(dim=1)
-        return (self._negsqrd_exp(torch.norm(self.foot_projected_gravity[:,:,:2], dim=2)) * \
-               self.semi_succeed_step * \
-               self.foot_on_motion).sum(dim=1)
-    
-    def _reward_stabilize_ankle(self):
-        """ Stabilize ankle when touchdown
-            Only activated when step is near the commanded location. Prioritize step_location reward.
-        """
-        naxis = 3
-        dt2 = (self.dt*self.cfg.control.decimation)**2
-        error = torch.square(self.ankle_vel_history[:,:,:naxis] - self.ankle_vel_history[:,:,naxis:2*naxis])/dt2
-        error = torch.sum(error, dim=2)
-        return -(error * self.semi_succeed_step).sum(dim=1)
 
     def _reward_joint_regularization(self):
         # Reward joint poses and symmetry
@@ -880,29 +813,12 @@ class HumanoidController(LeggedRobot):
         error += self._negsqrd_exp(
             (self.dof_pos[:, 5]) / self.scales['dof_pos'])
 
-        # Ab/ad joint symmetry
-        # error += self._negsqrd_exp(
-        #     (self.dof_pos[:, 1] - self.dof_pos[:, 6])
-        #     / self.scales['dof_pos'])
-        error += self._negsqrd_exp((self.dof_pos[:, 1]) / self.scales['dof_pos'])
-        error += self._negsqrd_exp((self.dof_pos[:, 6]) / self.scales['dof_pos'])
-
-        # Pitch joint symmetry
-        # error += self._negsqrd_exp(
-        #     (self.dof_pos[:, 2] + self.dof_pos[:, 7])
-        #     / self.scales['dof_pos'])
+        error += self._negsqrd_exp(
+            (self.dof_pos[:, 1]) / self.scales['dof_pos'])
+        error += self._negsqrd_exp(
+            (self.dof_pos[:, 6]) / self.scales['dof_pos'])
 
         return error/4
-
-    def _reward_wrong_contact(self): 
-        """ Penalize if the foot touchs the ground on the wrong place """ 
-        return -(self.foot_contact * ~self.semi_succeed_step * ~self.prev_semi_succeed_step).sum(dim=1)
-    
-    def _reward_tracking_lin_vel_world(self):
-        # Reward tracking linear velocity command in world frame
-        error = self.commands[:, :2] - self.root_states[:, 7:9]
-        error *= 1./(1. + torch.abs(self.commands[:, :2]))
-        return self._negsqrd_exp(error, a=1.).sum(dim=1)
     
     def _reward_contact_schedule(self):
         """ Alternate right and left foot contacts
