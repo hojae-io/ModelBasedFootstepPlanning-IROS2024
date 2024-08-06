@@ -98,4 +98,14 @@ Then you would get a `policy.onnx` file to run on C++ code.
 ---
 ### Acknowledgement ###
 We would appreciate it if you would cite it in academic publications:
-TBD
+```
+@misc{lee2024integratingmodelbasedfootstepplanning,
+      title={Integrating Model-Based Footstep Planning with Model-Free Reinforcement Learning for Dynamic Legged Locomotion}, 
+      author={Ho Jae Lee and Seungwoo Hong and Sangbae Kim},
+      year={2024},
+      eprint={2408.02662},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2408.02662}, 
+}
+```
