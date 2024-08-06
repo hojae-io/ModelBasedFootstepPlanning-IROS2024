@@ -2,7 +2,7 @@
 This repository is an open-sourced code for the following paper presented at the 2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS).
 
 #### Title: Integrating Model-Based Footstep Planning with Model-Free Reinforcement Learning for Dynamic Legged Locomotion <br/> 
-Paper Link: TBD <br/> 
+Paper Link: [https://arxiv.org/abs/2408.02662](https://arxiv.org/abs/2408.02662) 
 Video Link: [https://youtu.be/Z0E9AKt6RFo](https://youtu.be/Z0E9AKt6RFo)
 
 ### Installation ###
